@@ -6,8 +6,24 @@
   @set clientconfig=Development
 )
 
+:: get current date and time
+@if "%currentdatetime%"=="" (
+	@set currentdatetime=%date:~0,4%%date:~5,2%%date:~8,2%_%time:~0,2%%time:~3,2%
+)
+
 @if "%archivedirectory%"=="" (
-  @set archivedirectory=%~dp0Projects\t6\ArchivedBuilds
+  @set archivedirectory=%~dp0Projects\t6\ArchivedBuilds\%currentdatetime%
+)
+
+:: Robot in IceWalnut's TestGroup
+@if "%ding_url%"=="" (
+  @set ding_url=https://oapi.dingtalk.com/robot/send?access_token=6a96149b538821349dedb225dd1da89912a1f5f36bbb633f5ec78cb4014a4430
+)
+
+:: get local ip address
+@if "%local_ip%"=="" (
+  @for /f "tokens=16" %%i in ('ipconfig ^|find /i "ipv4"') do set local_ip=%%i
+  echo local_ip %local_ip%
 )
 
 @rmdir /S /Q %archivedirectory% >nul 2>&1
@@ -50,15 +66,42 @@ start "Packing_Pre_1" /WAIT cmd.exe /c "%uat%  -ScriptsForProject=%project% Turn
 @call:Pack
 @if %errorlevel% neq 0 ( exit /b 1)
 
-@REM DLSS需要
+@REM DLSS��Ҫ
 copy /Y .\Projects\t6\Plugins\UE4_Assimp\Binaries\Win64\assimp.dll %archivedirectory%\Windows\t6\Binaries\Win64\
 copy /Y .\Projects\t6\Plugins\UE4_Assimp\Binaries\Win64\assimp.dll %archivedirectory%\WindowsServer\t6\Binaries\Win64\
 
-@title packing ok, Any key to open %archivedirectory%
-echo Any key to open %archivedirectory%
-pause
-explorer %archivedirectory%
+echo packing to %archivedirectory%
 
+::----------------------------- delete earliest package --------------------------::
+:: get parent directory of archive directory
+@if "%parentdir%"=="" (
+  @set parentdir=%~dp0Projects\t6\ArchivedBuilds\
+)
+:: if packing succeeds, delete the earliest package
+:: min count of dir, when count less than or equal this num do nothing
+@set min_dir_count=2
+@set dir_count=0
+@for /f %%i in ('dir /ad /b /o-d "%parentdir%"') do (
+  @set "Files=%%i"
+  @set /a dir_count+=1
+)
+
+@if %dir_count% gtr %min_dir_count% (
+  @rd /s /q "%parentdir%%Files%"
+) else (
+  echo dir count is less than 3
+)
+@if %errorlevel%==0 (
+  echo remove earliest dir: "%parentdir%%Files%" ok
+) else (
+  echo remove earliest dir error
+  color 4
+  pause
+  exit /b 1
+)
+::----------------------------- delete earliest package --------------------------::
+
+@call:SendSuccessDingMsg
 exit /b 0
 
 
@@ -76,3 +119,5 @@ start "%titlename%" /WAIT cmd.exe /c "%uat% -ScriptsForProject=%project% Turnkey
 )
 
 
+:SendSuccessDingMsg
+curl -H "Content-Type:application/json" -d "{'msgtype':'text','text':{'content':'PackInfo: Auto Package Succeeds'}}" -s %ding_url%
