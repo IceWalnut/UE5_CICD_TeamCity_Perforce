@@ -65,7 +65,6 @@
   echo get revision num ok
 ) else (
   echo get revision num error
-  @REM call :SendFailureDingMsg
   color 4
   pause
   exit /b 1
@@ -80,16 +79,6 @@
   @set archivedirectory=%~dp0Projects\t6\ArchivedBuilds\%mainvernum%.%subvernum%.%revision_num%.%buildnum%
 )
 
-@REM Robot in IceWalnut's TestGroup
-@if "%ding_url%"=="" (
-  @set ding_url=https://oapi.dingtalk.com/robot/send?access_token=6a96149b538821349dedb225dd1da89912a1f5f36bbb633f5ec78cb4014a4430
-)
-
-@REM get local ip address
-@if "%local_ip%"=="" (
-  @for /f "tokens=16" %%i in ('ipconfig ^|find /i "ipv4"') do set local_ip=%%i
-)
-
 @rmdir /S /Q %archivedirectory% >nul 2>&1
 
 @set logdir=%archivedirectory%\log\
@@ -100,23 +89,23 @@
 @set uexe=%~dp0Engine\Binaries\Win64\UnrealEditor-Cmd.exe
 
 title Packing_Pre_0 ......
-start "Packing_Pre_0" /WAIT cmd.exe /c "%uat%  -ScriptsForProject=%project% Turnkey -utf8output -WaitForUATMutex -command=VerifySdk -ReportFilename=%logdir%\TurnkeyReport_0.log -log=%logdir%\TurnkeyLog_0.log -project=%project%  -platform=all  > %logdir%\Packing_Pre_0.log 2>&1"
+@REM start "Packing_Pre_0" /WAIT cmd.exe /c "%uat%  -ScriptsForProject=%project% Turnkey -utf8output -WaitForUATMutex -command=VerifySdk -ReportFilename=%logdir%\TurnkeyReport_0.log -log=%logdir%\TurnkeyLog_0.log -project=%project%  -platform=all  > %logdir%\Packing_Pre_0.log 2>&1"
+call %uat%  -ScriptsForProject=%project% Turnkey -utf8output -WaitForUATMutex -command=VerifySdk -ReportFilename=%logdir%\TurnkeyReport_0.log -log=%logdir%\TurnkeyLog_0.log -project=%project%  -platform=all
 if %errorlevel%==0 (
   echo Packing_Pre_0 ok
 ) else (
   echo Packing_Pre_0 error in Packing_Pre_0.log
-  @REM call :SendFailureDingMsg
   color 4
   pause
   exit /b 1
 )
 title Packing_Pre_1 ......
-start "Packing_Pre_1" /WAIT cmd.exe /c "%uat%  -ScriptsForProject=%project% Turnkey -utf8output -WaitForUATMutex -command=VerifySdk -ReportFilename=%logdir%\TurnkeyReport_1.log -log=%logdir%\TurnkeyLog_1.log -project=%project%  -Device=Win64PACKAGE -nocompile -nocompileuat  > %logdir%\Packing_Pre_1.log 2>&1"
+@REM start "Packing_Pre_1" /WAIT cmd.exe /c "%uat%  -ScriptsForProject=%project% Turnkey -utf8output -WaitForUATMutex -command=VerifySdk -ReportFilename=%logdir%\TurnkeyReport_1.log -log=%logdir%\TurnkeyLog_1.log -project=%project%  -Device=Win64PACKAGE -nocompile -nocompileuat  > %logdir%\Packing_Pre_1.log 2>&1"
+call %uat%  -ScriptsForProject=%project% Turnkey -utf8output -WaitForUATMutex -command=VerifySdk -ReportFilename=%logdir%\TurnkeyReport_1.log -log=%logdir%\TurnkeyLog_1.log -project=%project%  -Device=Win64PACKAGE -nocompile -nocompileuat
 if %errorlevel%==0 (
   echo Packing_Pre_1 ok
 ) else (
   echo Packing_Pre_1 error in Packing_Pre_1.log
-  @REM call :SendFailureDingMsg
   color 4
   pause
   exit /b 1
@@ -138,7 +127,7 @@ copy /Y .\Projects\t6\Plugins\UE4_Assimp\Binaries\Win64\assimp.dll %archivedirec
 
 echo packing to %archivedirectory%
 
-@REM----------------------------- delete earliest package START--------------------------@REM
+@REM ----------------------------- delete earliest package START--------------------------@REM
 @REM get parent directory of archive directory
 if "%parentdir%"=="" (
   set parentdir=%~dp0Projects\t6\ArchivedBuilds\
@@ -163,42 +152,23 @@ if %errorlevel%==0 (
   exit /b 0
 ) else (
   echo @REMove earliest dir error
-  @REM call :SendFailureDingMsg
   color 4
   pause
   exit /b 1
 )
-@REM----------------------------- delete earliest package END--------------------------@REM
-@REM call:SendSuccessDingMsg
-@REM exit /b 0
-
-
+@REM ----------------------------- delete earliest package END--------------------------@REM
 
 :Pack
 title %titlename% ......
-start "%titlename%" /WAIT cmd.exe /c "%uat% -ScriptsForProject=%project% Turnkey -command=VerifySdk -platform=Win64 -UpdateIfNeeded -EditorIO -EditorIOPort=60949  -project=%project% BuildCookRun -nop4 -utf8output -nocompileeditor -skipbuildeditor -cook  -project=%project% -target=%target%  -unrealexe=%uexe% -platform=Win64 -stage -archive -package -build -pak -iostore -compressed -prereqs -applocaldirectory="$(EngineDir)/Binaries/Win64" -archivedirectory=%archivedirectory% -clientconfig=%clientconfig% -nocompile -nocompileuat > %logdir%\%titlename%.log 2>&1 "
+@REM start "%titlename%" /WAIT cmd.exe /c "%uat% -ScriptsForProject=%project% Turnkey -command=VerifySdk -platform=Win64 -UpdateIfNeeded -EditorIO -EditorIOPort=60949  -project=%project% BuildCookRun -nop4 -utf8output -nocompileeditor -skipbuildeditor -cook  -project=%project% -target=%target%  -unrealexe=%uexe% -platform=Win64 -stage -archive -package -build -pak -iostore -compressed -prereqs -applocaldirectory="$(EngineDir)/Binaries/Win64" -archivedirectory=%archivedirectory% -clientconfig=%clientconfig% -nocompile -nocompileuat > %logdir%\%titlename%.log 2>&1 "
+call %uat% -ScriptsForProject=%project% Turnkey -command=VerifySdk -platform=Win64 -UpdateIfNeeded -EditorIO -EditorIOPort=60949  -project=%project% BuildCookRun -nop4 -utf8output -nocompileeditor -skipbuildeditor -cook  -project=%project% -target=%target%  -unrealexe=%uexe% -platform=Win64 -stage -archive -package -build -pak -iostore -compressed -prereqs -applocaldirectory="$(EngineDir)/Binaries/Win64" -archivedirectory=%archivedirectory% -clientconfig=%clientconfig% -nocompile -nocompileuat
+
 if %errorlevel%==0 (
   echo %titlename% ok
   exit /b 0
 ) else (
   echo %titlename% error in %titlename%.log
-  @REM call :SendFailureDingMsg
   color 4
   pause
   exit /b 1
 )
-
-
-@REM----------------------------- send success ding msg START --------------------------@REM
-:SendSuccessDingMsg
-curl -H "Content-Type:application/json" -d "{'msgtype':'text','text':{'content':'PackInfo: Auto Packing Succeeds'}}" -s %ding_url%
-goto :eof
-@REM----------------------------- send success ding msg END --------------------------@REM
-
-@REM----------------------------- send failure ding msg START --------------------------@REM
-@REM :SendFailureDingMsg
-@REM if "%info_url_prefix%"=="" (
-@REM   set info_url_prefix=http://%local_ip%:8111/buildConfiguration/%teamcity_project_id%_%build_conf_name%/%buildnum%
-@REM )
-@REM curl -H "Content-Type:application/json" -d "{'msgtype':'text','text':{'content':'PackInfo: ERROR! Auto Packing Failed. PackInfoURL: %info_url_prefix% 账号:admin 密码:123456 手机端请用浏览器打开'}}" -s %ding_url%
-@REM----------------------------- send success ding msg END --------------------------@REM

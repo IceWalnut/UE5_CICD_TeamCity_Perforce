@@ -19,8 +19,7 @@ if "%build_info_dir%"=="" (
 for /f %%i in ('dir /o-d /tc /b "%build_info_dir%"') do (
     set "Files=%%i"
     if %errorlevel%==0 (
-        echo get latest dir ok
-        echo latest dir: %Files%
+        echo Files: %Files%
     ) else (
         echo get latest dir error
         color 4
@@ -34,8 +33,13 @@ for /f %%i in ('dir /o-d /tc /b "%build_info_dir%"') do (
 :unzip
 :: build_prop_path          build property's file path
 if "%build_prop_path%"=="" (
-    :: TODO: 
     set build_prop_path=%build_info_dir%%Files%\.teamcity\properties\build.start.properties.gz
+)
+
+:: a temp dir to store the build properties file
+if "%temp%"=="" (
+    :: TODO: 
+    set /a temp=%~dp0
 )
 winrar x -y %build_prop_path% %~dp0logs\
 :: find the certain row of revision number 
@@ -49,6 +53,8 @@ if "%revision_num%"=="" (
     set /a revision_num = %vcs_num_str:~-3,3%
     echo %revision_num%
 )
+
+rmdir /s /q %~dp0logs\%revision_num%\ >nul 2>&1
 
 mkdir %~dp0logs\%revision_num%\
 if %errorlevel%==0 (
