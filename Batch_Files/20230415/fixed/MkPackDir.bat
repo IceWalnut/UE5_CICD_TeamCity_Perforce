@@ -1,16 +1,3 @@
-@REM @title p4 sync ......
-@REM p4 sync //UE5/Dev/...#head
-@REM @if %errorlevel%==0 (
-@REM   echo p4 sync ok
-@REM ) else (
-@REM   echo p4 sync error
-@REM   call .\SendDingMsg.bat
-@REM   color 4
-@REM   pause
-@REM   exit /b 1
-@REM )
-
-@REM -----------------------------------Mk Pack Dir----------------------------------------------
 @REM unzip teamcity build config file and make new version package dir
 @echo off
 
@@ -32,11 +19,13 @@
   @set build_info_dir=%teamcity_data_dir%\system\artifacts\%teamcity_project_id%\%build_conf_name%\
 )
 
+
 @REM TODO: 这里可能有问题
 @REM get the latest dir
 @for /f %%i in ('dir /o-d /tc /b "%build_info_dir%"') do (
   @set "Files=%%i"
   @call :unzip
+
   @goto :eof
 )
 
@@ -92,30 +81,11 @@
 
 @set logdir=%archivedirectory%\log\
 @mkdir %logdir%
-@REM -----------------------------------Mk Pack Dir----------------------------------------------
 
-
-@title AutoBuilding.bat ......
-call .\AutoBuilding.bat
 @if %errorlevel%==0 (
-  echo AutoBuilding.bat ok
+  echo mk new version pack dir ok
 ) else (
-  echo AutoBuilding.bat error
-  call .\SendDingMsg.bat 1
-  color 4
-  pause
-  exit /b 1
-)
-
-@title Packing.bat ......
-call .\Packing.bat
-@if %errorlevel%==0 (
-  echo Packing.bat ok
-  call .\SendDingMsg.bat 0
-  exit /b 0
-) else (
-  echo Packing.bat error
-  call .\SendDingMsg.bat 1
+  echo mk new version pack dir error
   color 4
   pause
   exit /b 1
