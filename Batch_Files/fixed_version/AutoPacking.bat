@@ -10,6 +10,19 @@
 @REM   exit /b 1
 @REM )
 
+@title MkPackDir.bat ......
+call .\MkPackDir.bat
+@if %errorlevel%==0 (
+  echo MkPackDir.bat ok
+) else (
+  echo MkPackDir.bat error
+  call .\SendDingMsg.bat 1
+  color 4
+  pause
+  exit /b 1
+)
+
+
 @title AutoBuilding.bat ......
 call .\AutoBuilding.bat
 @if %errorlevel%==0 (
@@ -35,6 +48,3 @@ call .\Packing.bat
   pause
   exit /b 1
 )
-
-
-exit /b 0

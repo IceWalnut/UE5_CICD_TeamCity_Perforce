@@ -1,0 +1,2 @@
+Totally same file: E:\Workspace\CICD\UE5_CICD\UE5_CICD_TeamCity_Perforce\Test_Batch\compare_dir\dir4\dir1\same.txt 3bytes 2023041410:52 E:\Workspace\CICD\UE5_CICD\UE5_CICD_TeamCity_Perforce\Test_Batch\compare_dir\dir3\dir1\same.txt 
+Totally same file: E:\Workspace\CICD\UE5_CICD\UE5_CICD_TeamCity_Perforce\Test_Batch\compare_dir\dir4\dir1\same.txt 3bytes 2023041410:52 E:\Workspace\CICD\UE5_CICD\UE5_CICD_TeamCity_Perforce\Test_Batch\compare_dir\dir3\dir1\same.txt 
