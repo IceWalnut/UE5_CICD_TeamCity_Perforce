@@ -78,24 +78,38 @@ echo packing to %archivedirectory%
 
 @REM -------------------------------------DIFF COPY---------------------------------
 if "%baseverdir%"=="" (
-  set baseverdir=%~dp0Projects\t6\ArchivedBuilds\%baseversion%
+  set baseverdir=%~dp0Projects\t6\ArchivedBuilds\%prevvernum%
 )
 if "%deltafolder%"=="" (
-  set deltafolder=%~dp0Projects\t6\ArchivedBuilds\%mainvernum%.%subvernum%.%revision_num%_%baseversion%
+  set deltafolder=%~dp0Projects\t6\ArchivedBuilds\%currvernum%_%prevvernum%
 )
 call .\Diffcopy.bat %baseverdir% %archivedirectory% %deltafolder%
 
-@REM -------------------------------------DIFF COPY---------------------------------
+@REM -------------------------------------DIFF COPY End---------------------------------
+
+@REM -------------------------------------TODO: Modify Version Control Prop---------------------------------
+
+call .\ModifyVerProp.bat %currvernum% %prevvernum%
+if %errorlevel%==0 (
+  echo modify version properties file ok
+) else (
+  echo modify version properties file error
+  color 4
+  pause
+  exit /b 1
+)
+
+@REM -------------------------------------Modify Version Control Prop---------------------------------
 exit /b 0
 
 :Pack
 title %titlename% ......
 @REM start "%titlename%" /WAIT cmd.exe /c "%uat% -ScriptsForProject=%project% Turnkey -command=VerifySdk -platform=Win64 -UpdateIfNeeded -EditorIO -EditorIOPort=60949  -project=%project% BuildCookRun -nop4 -utf8output -nocompileeditor -skipbuildeditor -cook  -project=%project% -target=%target%  -unrealexe=%uexe% -platform=Win64 -stage -archive -package -build -pak -iostore -compressed -prereqs -applocaldirectory="$(EngineDir)/Binaries/Win64" -archivedirectory=%archivedirectory% -clientconfig=%clientconfig% -nocompile -nocompileuat > %logdir%\%titlename%.log 2>&1 "
 @REM call %uat% -ScriptsForProject=%project% Turnkey -command=VerifySdk -platform=Win64 -UpdateIfNeeded -EditorIO -EditorIOPort=60949  -project=%project% BuildCookRun -nop4 -utf8output -nocompileeditor -skipbuildeditor -cook  -project=%project% -target=%target%  -unrealexe=%uexe% -platform=Win64 -stage -archive -package -build -pak -iostore -compressed -prereqs -applocaldirectory="$(EngineDir)/Binaries/Win64" -archivedirectory=%archivedirectory% -clientconfig=%clientconfig% -nocompile -nocompileuat
-@REM baseversion
-@REM call %uat% -ScriptsForProject=%project% Turnkey -command=VerifySdk -platform=Win64 -UpdateIfNeeded -EditorIO -EditorIOPort=60949  -project=%project% BuildCookRun -nop4 -utf8output -nocompileeditor -skipbuildeditor -cook  -project=%project% -target=%target%  -unrealexe=%uexe% -platform=Win64 -stage -archive -package -build -pak -iostore -compressed -prereqs -applocaldirectory="$(EngineDir)/Binaries/Win64" -archivedirectory=%archivedirectory% -clientconfig=%clientconfig% -serverconfig=%clientconfig% -nocompile -nocompileuat -installed -map= -CookCultures=zh-Hans -createreleaseversion=%mainvernum%.%subvernum%.%revision_num% -distribution
+@REM prevvernum
+@REM call %uat% -ScriptsForProject=%project% Turnkey -command=VerifySdk -platform=Win64 -UpdateIfNeeded -EditorIO -EditorIOPort=60949  -project=%project% BuildCookRun -nop4 -utf8output -nocompileeditor -skipbuildeditor -cook  -project=%project% -target=%target%  -unrealexe=%uexe% -platform=Win64 -stage -archive -package -build -pak -iostore -compressed -prereqs -applocaldirectory="$(EngineDir)/Binaries/Win64" -archivedirectory=%archivedirectory% -clientconfig=%clientconfig% -serverconfig=%clientconfig% -nocompile -nocompileuat -installed -map= -CookCultures=zh-Hans -createreleaseversion=%currvernum% -distribution
 @REM normalversion
-call %uat% -ScriptsForProject=%project% Turnkey -command=VerifySdk -platform=Win64 -UpdateIfNeeded -EditorIO -EditorIOPort=60949  -project=%project% BuildCookRun -nop4 -utf8output -nocompileeditor -skipbuildeditor -cook  -project=%project% -target=%target%  -unrealexe=%uexe% -platform=Win64 -stage -archive -package -build -pak -iostore -compressed -prereqs -applocaldirectory="$(EngineDir)/Binaries/Win64" -archivedirectory=%archivedirectory% -clientconfig=%clientconfig% -serverconfig=%clientconfig% -nocompile -nocompileuat -installed -map= -CookCultures=zh-Hans -createreleaseversion=%mainvernum%.%subvernum%.%revision_num% -generatepatch -addpatchlevel -basedonreleaseversion=%baseversion% -distribution
+call %uat% -ScriptsForProject=%project% Turnkey -command=VerifySdk -platform=Win64 -UpdateIfNeeded -EditorIO -EditorIOPort=60949  -project=%project% BuildCookRun -nop4 -utf8output -nocompileeditor -skipbuildeditor -cook  -project=%project% -target=%target%  -unrealexe=%uexe% -platform=Win64 -stage -archive -package -build -pak -iostore -compressed -prereqs -applocaldirectory="$(EngineDir)/Binaries/Win64" -archivedirectory=%archivedirectory% -clientconfig=%clientconfig% -serverconfig=%clientconfig% -nocompile -nocompileuat -installed -map= -CookCultures=zh-Hans -createreleaseversion=%currvernum% -generatepatch -addpatchlevel -basedonreleaseversion=%prevvernum% -distribution
 
 if %errorlevel%==0 (
   echo %titlename% ok

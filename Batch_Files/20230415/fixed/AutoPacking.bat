@@ -61,10 +61,10 @@
 :endSch
 @REM handle the vcs num str
 @if "%revision_num%"=="" (
+  @REM TODO: 这里可能会变成 4 位，需要注意
   @set /a revision_num = %vcs_num_str:~-3,3%
 )
-@REM rmdir /s /q %~dp0Projects\t6\ArchivedBuilds\%revision_num%\ >nul 2>&1
-@REM mkdir %~dp0Projects\t6\ArchivedBuilds\%revision_num%\
+
 @if %errorlevel%==0 (
   echo get revision num ok
 ) else (
@@ -76,16 +76,30 @@
 
 @set mainvernum=0
 @set subvernum=0
-@set baseverrevisionnum=975
-@if "%baseversion%"=="" (
-  @set baseversion=%mainvernum%.%subvernum%.%baseverrevisionnum%
+@REM ------------------- Set Previous Version Num as Base Ver Everytime------------------------------------
+if "%verprop%"=="" (
+  set verprop=%~dp0Projects\t6\ArchivedBuilds\versioncontrol.properties
 )
+for /f %%x in ('findstr /b "curr.version.num=" %verprop%') do (set tmpprevvernum=%%x)&goto endfindprever
+:endfindprever
+if "%prevvernum%"=="" (
+  set /a prevvernum=%tmpprevvernum%
+)
+
+@REM @set baseverrevisionnum=975
+@REM @if "%baseversion%"=="" (
+@REM   @set baseversion=%mainvernum%.%subvernum%.%baseverrevisionnum%
+@REM )
 @REM teamcity internal build num
-@set /a buildnum=%Files%
+@REM @set /a buildnum=%Files%
+
+if "%currvernum%"=="" (
+  set currvernum=%mainvernum%.%subvernum%.%revision_num%
+)
 
 @if "%archivedirectory%"=="" (
   @REM @set archivedirectory=%~dp0Projects\t6\ArchivedBuilds\%mainvernum%.%subvernum%.%revision_num%.%buildnum%
-  @set archivedirectory=%~dp0Projects\t6\ArchivedBuilds\%mainvernum%.%subvernum%.%revision_num%
+  @set archivedirectory=%~dp0Projects\t6\ArchivedBuilds\%currvernum%
 )
 
 @rmdir /S /Q %archivedirectory% >nul 2>&1
