@@ -49,7 +49,8 @@ set ifsucceed=%1
 :endSch
 @REM handle the vcs num str
 @if "%revision_num%"=="" (
-  @set /a revision_num = %vcs_num_str:~-3,3%
+  @REM TODO: 有可能是 4 位
+  @set /a revision_num = %vcs_num_str:~-4,4%
 )
 @set mainvernum=0
 @set subvernum=0
@@ -93,15 +94,15 @@ if %ifsucceed%==0 (
 
 @REM ----------------------------- send failure ding msg START --------------------------
 :SendFailureDingMsg
-@if "%info_url_prefix%"=="" (
-  @set info_url_prefix=http://%local_ip%:8111/buildConfiguration/%teamcity_project_id%_%build_conf_name%/%buildnum%
-)
-@curl -H "Content-Type:application/json" -d "{'msgtype':'text','text':{'content':'PackInfo: ERROR! Auto Packing Failed. PackInfoURL: %%info_url_prefix%% account:admin password:123456 Copy the link in the browser on your phone'}}" -s %ding_url%
+@REM @if "%info_url_prefix%"=="" (
+@set info_url_prefix=http://%local_ip%:8111/buildConfiguration/%teamcity_project_id%_%build_conf_name%/%buildnum%
+@REM )
+@curl -H "Content-Type:application/json" -d "{'msgtype':'text','text':{'content':'PackInfo: ERROR! Auto Packing Failed. PackInfoURL: %info_url_prefix% account: admin password: 123456 Copy the link in the browser on your phone'}}" -s %ding_url%
 goto :eof
 @REM ----------------------------- send failure ding msg END ----------------------------
 
 @REM ----------------------------- send failure ding msg START --------------------------
 :SendSuccessDingMsg
-@curl -H "Content-Type:application/json" -d "{'msgtype':'text','text':{'content':'PackInfo: Auto Packing Succeeds'}}" -s %ding_url%
+@curl -H "Content-Type:application/json" -d "{'msgtype':'text','text':{'content':'PackInfo: Auto Packing Succeeds! version: %currvernum%'}}" -s %ding_url%
 goto :eof
 @REM ----------------------------- send failure ding msg END ----------------------------

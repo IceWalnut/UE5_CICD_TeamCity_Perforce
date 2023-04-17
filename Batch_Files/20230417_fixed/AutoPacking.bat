@@ -80,23 +80,25 @@ set subvernum=0
 if "%verprop%"=="" (
   set verprop=%~dp0Projects\t6\ArchivedBuilds\versioncontrol.properties
 )
-for /f %%x in ('findstr /b "curr.version.num=" %verprop%') do (set tmpprevrevnum=%%x)&goto endfindprever
+for /f %%x in ('findstr /b "curr.version.num=" %verprop%') do (set tmpprevrevisionnum=%%x)&goto endfindprever
 :endfindprever
-if "%prevrevnum%"=="" (
+if "%prevrevisionnum%"=="" (
   @REM TODO: 这里可能会变成 4 位，今后需要注意
-  set /a prevrevnum=%tmpprevrevnum:~-4,4%
+  set /a prevrevisionnum=%tmpprevrevisionnum:~-4,4%
 )
-echo prevrevnum: %prevrevnum%
+
 if "%prevvernum%"=="" (
   @REM TODO: 这里可能会变成 4 位，今后需要注意
-  set prevvernum=%mainvernum%.%subvernum%.%prevrevnum%
+  set prevvernum=%mainvernum%.%subvernum%.%prevrevisionnum%
 )
 echo prevvernum: %prevvernum%
 
-@REM @set baseverrevisionnum=975
-@REM @if "%baseversion%"=="" (
-@REM   @set baseversion=%mainvernum%.%subvernum%.%baseverrevisionnum%
-@REM )
+@set baseverrevisionnum=1005
+@if "%baseversion%"=="" (
+  @set baseversion=%mainvernum%.%subvernum%.%baseverrevisionnum%
+)
+echo baseversion: %baseversion%
+
 @REM teamcity internal build num
 @REM @set /a buildnum=%Files%
 
