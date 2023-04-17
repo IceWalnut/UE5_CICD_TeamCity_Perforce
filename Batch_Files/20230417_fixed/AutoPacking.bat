@@ -84,7 +84,7 @@ for /f %%x in ('findstr /b "curr.version.num=" %verprop%') do (set tmpprevrevnum
 :endfindprever
 if "%prevrevnum%"=="" (
   @REM TODO: 这里可能会变成 4 位，今后需要注意
-  set /a prevrevnum=%tmpprevrevnum:~-3,3%
+  set /a prevrevnum=%tmpprevrevnum:~-4,4%
 )
 echo prevrevnum: %prevrevnum%
 if "%prevvernum%"=="" (
