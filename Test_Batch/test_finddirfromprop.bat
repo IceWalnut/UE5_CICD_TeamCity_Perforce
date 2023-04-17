@@ -1,17 +1,16 @@
 
 setlocal enabledelayedexpansion
 
-set a=0.0.977
-set b=0.0.1002
+set a=0.0.1012
+set b=0.0.977
 
 for /f "tokens=2 delims==" %%i in ('findstr /i "used.version.nums" c.txt') do (
     set nums=%%i
 )
 echo nums: %nums%
-pause
 
 set nums=!nums:,= !
-set nums=!nums:.= !
+@REM set nums=!nums:.= !
 
 for %%i in (!nums!) do (
     if "%%i"=="%a%" (
@@ -29,7 +28,7 @@ for %%i in (!nums!) do (
         echo !b1!_!b2!
         set flag2=
     )
-	pause
 )
 pause
+echo !b1!_!b2!
 

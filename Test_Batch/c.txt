@@ -1,4 +1,4 @@
 base.version.num=0.0.975
 prev.version.num=0.0.1000
 curr.version.num=0.0.1012
-used.version.nums=0.0.975,0.0.977,0.0.982,0.0.1000,0.0.1012,0.0.1012,0.0.1012
+used.version.nums=0.0.975,0.0.977,0.0.982,0.0.1000,0.0.1012
