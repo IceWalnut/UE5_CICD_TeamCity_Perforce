@@ -3,10 +3,6 @@
 
 @REM echo first para is %1
 set ifsucceed=%1
-if %ifsucceed% neq 0 (
-  @REM if failed modify the dir name of archivedirectory
-  ren "%~dp0Projects\t6\ArchivedBuilds\%currvernum%" "%currvernum%_failed"
-)
 
 @if "%teamcity_data_dir%"=="" (
   @set teamcity_data_dir=C:\ProgramData\JetBrains\TeamCity
@@ -59,22 +55,24 @@ if %ifsucceed% neq 0 (
 @set mainvernum=0
 @set subvernum=0
 @REM teamcity internal build num
-@set /a buildnum=%Files%
+echo internal_build_id: %interbuildid%
+@set buildnum=%interbuildid%
+echo buildnum: %buildnum%
 
 @REM Robot in IceWalnut's TestGroup
 @if "%ding_url%"=="" (
   @REM Private Group
-  @REM @set ding_url=https://oapi.dingtalk.com/robot/send?access_token=6a96149b538821349dedb225dd1da89912a1f5f36bbb633f5ec78cb4014a4430
+  @set ding_url=https://oapi.dingtalk.com/robot/send?access_token=6a96149b538821349dedb225dd1da89912a1f5f36bbb633f5ec78cb4014a4430
   @REM CICD Group
-  @set ding_url=https://oapi.dingtalk.com/robot/send?access_token=62a69e2ef9d1bb5499f3cc194cb680337f2f3fc5fe78b4c23aa26b7923e9c9f7
+  @REM @set ding_url=https://oapi.dingtalk.com/robot/send?access_token=62a69e2ef9d1bb5499f3cc194cb680337f2f3fc5fe78b4c23aa26b7923e9c9f7
 )
 
 @REM get local ip address
 @REM @for /f "tokens=16" %%i in ('ipconfig ^|find /i "ipv4"') do set local_ip=%%i
 @REM 4070ti
-@REM @set local_ip=192.168.110.138
+@set local_ip=192.168.110.138
 @REM Package-1s
-@set local_ip=192.168.110.169
+@REM @set local_ip=192.168.110.169
 
 echo local_ip %local_ip%
 
@@ -101,7 +99,8 @@ if %ifsucceed%==0 (
 @REM @if "%info_url_prefix%"=="" (
 @set info_url_prefix=http://%local_ip%:8111/buildConfiguration/%teamcity_project_id%_%build_conf_name%/%buildnum%
 @REM )
-@curl -H "Content-Type:application/json" -d "{'msgtype':'text','text':{'content':'PackInfo: ERROR! Auto Packing Failed. PackInfoURL: %info_url_prefix% account: admin password: 123456 Copy the link in the browser on your phone'}}" -s %ding_url%
+echo currvernum: %currvernum%
+@curl -H "Content-Type:application/json" -d "{'msgtype':'text','text':{'content':'PackInfo: ERROR! Auto Packing Failed. version: %currvernum% PackInfoURL: %info_url_prefix% account: admin password: 123456 Copy the link in the browser on your phone'}}" -s %ding_url%
 goto :eof
 @REM ----------------------------- send failure ding msg END ----------------------------
 

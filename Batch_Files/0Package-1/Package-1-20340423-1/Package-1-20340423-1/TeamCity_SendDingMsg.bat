@@ -3,10 +3,6 @@
 
 @REM echo first para is %1
 set ifsucceed=%1
-if %ifsucceed% neq 0 (
-  @REM if failed modify the dir name of archivedirectory
-  ren "%~dp0Projects\t6\ArchivedBuilds\%currvernum%" "%currvernum%_failed"
-)
 
 @if "%teamcity_data_dir%"=="" (
   @set teamcity_data_dir=C:\ProgramData\JetBrains\TeamCity
@@ -59,7 +55,9 @@ if %ifsucceed% neq 0 (
 @set mainvernum=0
 @set subvernum=0
 @REM teamcity internal build num
-@set /a buildnum=%Files%
+echo internal_build_id: %interbuildid%
+@set buildnum=%interbuildid%
+echo buildnum: %buildnum%
 
 @REM Robot in IceWalnut's TestGroup
 @if "%ding_url%"=="" (
@@ -101,7 +99,8 @@ if %ifsucceed%==0 (
 @REM @if "%info_url_prefix%"=="" (
 @set info_url_prefix=http://%local_ip%:8111/buildConfiguration/%teamcity_project_id%_%build_conf_name%/%buildnum%
 @REM )
-@curl -H "Content-Type:application/json" -d "{'msgtype':'text','text':{'content':'PackInfo: ERROR! Auto Packing Failed. PackInfoURL: %info_url_prefix% account: admin password: 123456 Copy the link in the browser on your phone'}}" -s %ding_url%
+echo currvernum: %currvernum%
+@curl -H "Content-Type:application/json" -d "{'msgtype':'text','text':{'content':'PackInfo: ERROR! Auto Packing Failed. version: %currvernum% PackInfoURL: %info_url_prefix% account: admin password: 123456 Copy the link in the browser on your phone'}}" -s %ding_url%
 goto :eof
 @REM ----------------------------- send failure ding msg END ----------------------------
 

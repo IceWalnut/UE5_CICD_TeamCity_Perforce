@@ -1,34 +1,6 @@
 @echo off
 @taskkill /F /IM AutomationTool.exe >nul 2>&1
 
-@REM ----------------------------- delete earliest package START--------------------------@REM
-@REM @REM get parent directory of archive directory
-@REM if "%parentdir%"=="" (
-@REM   set parentdir=%~dp0Projects\t6\ArchivedBuilds\
-@REM )
-@REM @REM if packing succeeds, delete the earliest package
-@REM @REM min count of dir, when count less than or equal this num do nothing
-@REM @set min_dir_count=6
-@REM @set dir_count=0
-@REM @for /f %%i in ('dir /ad /b /o-d "%parentdir%"') do (
-@REM   @set "Files=%%i"
-@REM   @set /a dir_count+=1
-@REM )
-
-@REM @if %dir_count% gtr %min_dir_count% (
-@REM   @rd /s /q "%parentdir%%Files%"
-@REM ) else (
-@REM   echo dir count is less than 7
-@REM )
-@REM @if %errorlevel%==0 (
-@REM   @echo remove earliest dir: "%parentdir%%Files%" ok
-@REM ) else (
-@REM   echo remove earliest dir error
-@REM   color 4
-@REM   pause
-@REM )
-@REM ----------------------------- delete earliest package END--------------------------@REM
-
 @if "%clientconfig%"=="" (
   @set clientconfig=Development
 )
@@ -75,7 +47,7 @@ copy /Y .\Projects\t6\Plugins\UE4_Assimp\Binaries\Win64\assimp.dll %archivedirec
 copy /Y .\Projects\t6\Plugins\UE4_Assimp\Binaries\Win64\assimp.dll %archivedirectory%\WindowsServer\t6\Binaries\Win64\
 
 
-@REM -------------------------------------DIFF COPY--------------------------------------------------
+@REM -------------------------------------DIFF COPY---------------------------------
 if "%prevverdir%"=="" (
   set prevverdir=%archivedirectory_prefix%\%prevvernum%
 )
@@ -86,7 +58,7 @@ if "%deltafolder%"=="" (
 )
 call .\Diffcopy.bat %prevverdir% %archivedirectory% %deltafolder%
 
-@REM -------------------------------------DIFF COPY End-----------------------------------------------
+@REM -------------------------------------DIFF COPY End---------------------------------
 
 @REM -------------------------------------Modify Version Control Prop---------------------------------
 call .\ModifyVerProp.bat %currvernum% %prevvernum%
@@ -100,21 +72,8 @@ if %errorlevel%==0 (
 )
 @REM -------------------------------------Modify Version Control Prop---------------------------------
 
-@REM -------------------------------------Copy To Net Disk--------------------------------------------
-echo READY TO COPY FILES
-call .\TeamCity_CopyToNetDisk.bat
 
-if %errorlevel%==0 (
-  echo TeamCity_CopyToNetDisk.bat ok
-) else (
-  echo TeamCity_CopyToNetDisk.bat error
-  color 4
-  pause
-  exit /b 1
-)
-@REM -------------------------------------Copy To Net Disk--------------------------------------------
-
-echo packing to %net_archivedirectory%
+echo packing to %archivedirectory%
 exit /b 0
 
 :Pack
@@ -124,7 +83,16 @@ title %titlename% ......
 @REM basevernum
 @REM call %uat% -ScriptsForProject=%project% Turnkey -command=VerifySdk -platform=Win64 -UpdateIfNeeded -EditorIO -EditorIOPort=60949  -project=%project% BuildCookRun -nop4 -utf8output -nocompileeditor -skipbuildeditor -cook  -project=%project% -target=%target%  -unrealexe=%uexe% -platform=Win64 -stage -archive -package -build -pak -iostore -compressed -prereqs -applocaldirectory="$(EngineDir)/Binaries/Win64" -archivedirectory=%archivedirectory% -clientconfig=%clientconfig% -serverconfig=%clientconfig% -nocompile -nocompileuat -installed -map= -CookCultures=zh-Hans -createreleaseversion=%currvernum% -distribution
 @REM normalversion
-call %uat% -ScriptsForProject=%project% Turnkey -command=VerifySdk -platform=Win64 -UpdateIfNeeded -EditorIO -EditorIOPort=60949  -project=%project% BuildCookRun -nop4 -utf8output -nocompileeditor -skipbuildeditor -cook  -project=%project% -target=%target%  -unrealexe=%uexe% -platform=Win64 -stage -archive -package -build -pak -iostore -compressed -prereqs -applocaldirectory="$(EngineDir)/Binaries/Win64" -archivedirectory=%archivedirectory% -clientconfig=%clientconfig% -serverconfig=%clientconfig% -nocompile -nocompileuat -installed -map= -CookCultures=zh-Hans -createreleaseversion=%currvernum% -generatepatch -addpatchlevel -basedonreleaseversion=%baseversion% -distribution
+@REM call %uat% -ScriptsForProject=%project% Turnkey -command=VerifySdk -platform=Win64 -UpdateIfNeeded -EditorIO -EditorIOPort=60949  -project=%project% BuildCookRun -nop4 -utf8output -nocompileeditor -skipbuildeditor -cook  -project=%project% -target=%target%  -unrealexe=%uexe% -platform=Win64 -stage -archive -package -build -pak -iostore -compressed -prereqs -applocaldirectory="$(EngineDir)/Binaries/Win64" -archivedirectory=%archivedirectory% -clientconfig=%clientconfig% -serverconfig=%clientconfig% -nocompile -nocompileuat -installed -map= -CookCultures=zh-Hans -createreleaseversion=%currvernum% -generatepatch -addpatchlevel -basedonreleaseversion=%prevvernum% -distribution
+
+if %ifNeedAddPatchLevel% NEQ 0 (
+  @REM without addpatchlevel
+  call %uat% -ScriptsForProject=%project% Turnkey -command=VerifySdk -platform=Win64 -UpdateIfNeeded -EditorIO -EditorIOPort=60949  -project=%project% BuildCookRun -nop4 -utf8output -nocompileeditor -skipbuildeditor -cook  -project=%project% -target=%target%  -unrealexe=%uexe% -platform=Win64 -stage -archive -package -build -pak -iostore -compressed -prereqs -applocaldirectory="$(EngineDir)/Binaries/Win64" -archivedirectory=%archivedirectory% -clientconfig=%clientconfig% -serverconfig=%clientconfig% -installed -map= -CookCultures=zh-Hans -createreleaseversion=%currvernum% -generatepatch -basedonreleaseversion=%baseversion% -distribution
+) else (
+  @REM need addpatchlevel
+  call %uat% -ScriptsForProject=%project% Turnkey -command=VerifySdk -platform=Win64 -UpdateIfNeeded -EditorIO -EditorIOPort=60949  -project=%project% BuildCookRun -nop4 -utf8output -nocompileeditor -skipbuildeditor -cook  -project=%project% -target=%target%  -unrealexe=%uexe% -platform=Win64 -stage -archive -package -build -pak -iostore -compressed -prereqs -applocaldirectory="$(EngineDir)/Binaries/Win64" -archivedirectory=%archivedirectory% -clientconfig=%clientconfig% -serverconfig=%clientconfig% -installed -map= -CookCultures=zh-Hans -createreleaseversion=%currvernum% -generatepatch -addpatchlevel -basedonreleaseversion=%baseversion% -distribution
+)
+
 
 if %errorlevel%==0 (
   echo %titlename% ok

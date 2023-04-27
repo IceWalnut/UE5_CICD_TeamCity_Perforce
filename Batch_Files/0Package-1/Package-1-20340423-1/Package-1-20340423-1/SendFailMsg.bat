@@ -1,12 +1,6 @@
 @REM get the current teamcity build info
 @echo off
 
-@REM echo first para is %1
-set ifsucceed=%1
-if %ifsucceed% neq 0 (
-  @REM if failed modify the dir name of archivedirectory
-  ren "%~dp0Projects\t6\ArchivedBuilds\%currvernum%" "%currvernum%_failed"
-)
 
 @if "%teamcity_data_dir%"=="" (
   @set teamcity_data_dir=C:\ProgramData\JetBrains\TeamCity
@@ -27,8 +21,13 @@ if %ifsucceed% neq 0 (
 
 @REM get the latest dir
 @for /f %%i in ('dir /o-d /tc /b "%build_info_dir%"') do (
-  @REM Files means internal_build_id
   @set "Files=%%i"
+  @REM @if %errorlevel% neq 0 (
+  @REM   echo get latest dir error
+  @REM   color 4
+  @REM   pause
+  @REM   exit /b 1
+  @REM )
   @call :unzip
 
   @goto :eof
@@ -53,8 +52,7 @@ if %ifsucceed% neq 0 (
 :endSch
 @REM handle the vcs num str
 @if "%revision_num%"=="" (
-  @REM TODO: 有可能是 4 位
-  @set /a revision_num = %vcs_num_str:~-4,4%
+  @set /a revision_num = %vcs_num_str:~-3,3%
 )
 @set mainvernum=0
 @set subvernum=0
@@ -64,17 +62,13 @@ if %ifsucceed% neq 0 (
 @REM Robot in IceWalnut's TestGroup
 @if "%ding_url%"=="" (
   @REM Private Group
-  @REM @set ding_url=https://oapi.dingtalk.com/robot/send?access_token=6a96149b538821349dedb225dd1da89912a1f5f36bbb633f5ec78cb4014a4430
+  @set ding_url=https://oapi.dingtalk.com/robot/send?access_token=6a96149b538821349dedb225dd1da89912a1f5f36bbb633f5ec78cb4014a4430
   @REM CICD Group
-  @set ding_url=https://oapi.dingtalk.com/robot/send?access_token=62a69e2ef9d1bb5499f3cc194cb680337f2f3fc5fe78b4c23aa26b7923e9c9f7
+  @REM @set ding_url=https://oapi.dingtalk.com/robot/send?access_token=62a69e2ef9d1bb5499f3cc194cb680337f2f3fc5fe78b4c23aa26b7923e9c9f7
 )
 
 @REM get local ip address
-@REM @for /f "tokens=16" %%i in ('ipconfig ^|find /i "ipv4"') do set local_ip=%%i
-@REM 4070ti
-@REM @set local_ip=192.168.110.138
-@REM Package-1s
-@set local_ip=192.168.110.169
+@for /f "tokens=16" %%i in ('ipconfig ^|find /i "ipv4"') do set local_ip=%%i
 
 echo local_ip %local_ip%
 
@@ -88,25 +82,27 @@ echo local_ip %local_ip%
   exit /b 1
 )
 
-if %ifsucceed%==0 (
-  @call :SendSuccessDingMsg
+@REM first para is 0
+if %1==0 (
+  call :SendSuccessDingMsg
   exit /b 0
-) else (
+)
+
+if %1==1 (
   @call :SendFailureDingMsg
   exit /b 0
 )
 
 @REM ----------------------------- send failure ding msg START --------------------------
 :SendFailureDingMsg
-@REM @if "%info_url_prefix%"=="" (
-@set info_url_prefix=http://%local_ip%:8111/buildConfiguration/%teamcity_project_id%_%build_conf_name%/%buildnum%
-@REM )
-@curl -H "Content-Type:application/json" -d "{'msgtype':'text','text':{'content':'PackInfo: ERROR! Auto Packing Failed. PackInfoURL: %info_url_prefix% account: admin password: 123456 Copy the link in the browser on your phone'}}" -s %ding_url%
-goto :eof
+@if "%info_url_prefix%"=="" (
+  @set info_url_prefix=http://%local_ip%:8111/buildConfiguration/%teamcity_project_id%_%build_conf_name%/%buildnum%
+)
+@curl -H "Content-Type:application/json" -d "{'msgtype':'text','text':{'content':'PackInfo: ERROR! Auto Packing Failed. PackInfoURL: %info_url_prefix% 账号:admin 密码:123456 手机端请用浏览器打开'}}" -s %ding_url%
 @REM ----------------------------- send failure ding msg END ----------------------------
 
 @REM ----------------------------- send failure ding msg START --------------------------
 :SendSuccessDingMsg
-@curl -H "Content-Type:application/json" -d "{'msgtype':'text','text':{'content':'PackInfo: Auto Packing Succeeds! version: %currvernum%'}}" -s %ding_url%
-goto :eof
+@curl -H "Content-Type:application/json" -d "{'msgtype':'text','text':{'content':'PackInfo: Auto Packing Succeeds'}}" -s %ding_url%
 @REM ----------------------------- send failure ding msg END ----------------------------
+

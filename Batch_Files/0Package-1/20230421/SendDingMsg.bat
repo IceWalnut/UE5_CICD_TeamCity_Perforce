@@ -3,10 +3,6 @@
 
 @REM echo first para is %1
 set ifsucceed=%1
-if %ifsucceed% neq 0 (
-  @REM if failed modify the dir name of archivedirectory
-  ren "%~dp0Projects\t6\ArchivedBuilds\%currvernum%" "%currvernum%_failed"
-)
 
 @if "%teamcity_data_dir%"=="" (
   @set teamcity_data_dir=C:\ProgramData\JetBrains\TeamCity
@@ -72,9 +68,9 @@ if %ifsucceed% neq 0 (
 @REM get local ip address
 @REM @for /f "tokens=16" %%i in ('ipconfig ^|find /i "ipv4"') do set local_ip=%%i
 @REM 4070ti
-@REM @set local_ip=192.168.110.138
+@set local_ip=192.168.110.138
 @REM Package-1s
-@set local_ip=192.168.110.169
+@REM @set local_ip=192.168.110.169
 
 echo local_ip %local_ip%
 
